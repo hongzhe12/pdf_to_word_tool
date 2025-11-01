@@ -1,0 +1,70 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+  release:
+    types: [ published ]
+
+env:
+  APP_NAME: "pdf_2_word"
+  ENTRY_POINT: "pdf_to_word_tool.py"
+  PYTHON_VERSION: "3.9"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller
+        if exist requirements.txt pip install -r requirements.txt
+
+    - name: Build executable
+      run: |
+        pyinstaller --onefile --windowed --name "${{ env.APP_NAME }}" "${{ env.ENTRY_POINT }}"
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}-executable
+        path: dist/${{ env.APP_NAME }}.exe
+        retention-days: 7
+
+  release:
+    needs: build
+    if: github.event_name == 'push' || github.event.release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}-executable
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ env.APP_NAME }}.exe
+        tag_name: build-${{ github.run_number }}
+        name: Build ${{ github.run_number }}
+        body: |
+          自动构建版本
+          Commit: ${{ github.sha }}
+          构建时间: ${{ github.event.head_commit.timestamp }}
+          触发事件: ${{ github.event_name }}
+        draft: false
+        prerelease: false
