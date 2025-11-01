@@ -27,11 +27,13 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Install dependencies
+      shell: cmd
       run: |
         pip install pyinstaller
         if exist requirements.txt pip install -r requirements.txt
 
     - name: Build executable
+      shell: cmd
       run: |
         pyinstaller --onefile --windowed --name "${{ env.APP_NAME }}" "${{ env.ENTRY_POINT }}"
 
