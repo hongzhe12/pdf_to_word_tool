@@ -11,7 +11,7 @@ from docx.shared import Cm
 import fitz
 from docx import Document
 from PIL import Image
-
+import resources_rc
 
 class ConversionThread(QThread):
     """转换线程"""
