@@ -137,7 +137,7 @@ class ConversionThread(QThread):
                 # 从内存数据添加图片
                 from io import BytesIO
                 img_buffer = BytesIO(img_data)
-                run.add_picture(img_buffer, width=Cm(6))
+                run.add_picture(img_buffer, width=Cm(self.target_width / 10))
                 img_buffer.close()
 
                 # 更新进度（Word生成阶段占50%）
@@ -189,17 +189,17 @@ class MainWindow(QMainWindow):
 
         self.width_spin = QSpinBox()
         self.width_spin.setRange(10, 200)
-        self.width_spin.setValue(75)
+        self.width_spin.setValue(85)  # 火车票电子发票标准宽度85mm
         self.width_spin.setSuffix(" mm")
 
         self.height_spin = QSpinBox()
         self.height_spin.setRange(10, 200)
-        self.height_spin.setValue(45)
+        self.height_spin.setValue(55)  # 火车票电子发票标准高度55mm
         self.height_spin.setSuffix(" mm")
 
         self.images_per_row_spin = QSpinBox()
         self.images_per_row_spin.setRange(1, 5)
-        self.images_per_row_spin.setValue(2)
+        self.images_per_row_spin.setValue(2)  # 默认每行2张
         self.images_per_row_spin.setSuffix(" 张/行")
 
         params_layout.addRow("图片宽度:", self.width_spin)
@@ -241,8 +241,13 @@ class MainWindow(QMainWindow):
         self.stop_btn.clicked.connect(self.stop_conversion)
         self.stop_btn.setEnabled(False)
 
+        self.open_folder_btn = QPushButton("打开文件夹")
+        self.open_folder_btn.clicked.connect(self.open_folder)
+        self.open_folder_btn.setEnabled(False)
+
         button_layout.addWidget(self.start_btn)
         button_layout.addWidget(self.stop_btn)
+        button_layout.addWidget(self.open_folder_btn)
         layout.addLayout(button_layout)
 
         # 日志输出
@@ -257,6 +262,12 @@ class MainWindow(QMainWindow):
         # 状态栏
         self.status_label = QLabel("就绪")
         layout.addWidget(self.status_label)
+
+    def open_folder(self):
+        if self.pdf_folder:
+            os.startfile(self.pdf_folder)
+        else:
+            QMessageBox.warning(self, "警告", "请先选择PDF文件夹！")
 
     def select_pdf_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "选择PDF文件夹")
@@ -273,6 +284,7 @@ class MainWindow(QMainWindow):
         # 禁用开始按钮，启用停止按钮
         self.start_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
+        self.open_folder_btn.setEnabled(True)
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(0)
 
