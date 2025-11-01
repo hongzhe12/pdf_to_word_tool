@@ -8,6 +8,7 @@ on:
 
 env:
   APP_NAME: "pdf_2_word"
+  ICON: "images/favicon.ico"
   ENTRY_POINT: "pdf_to_word_tool.py"
   PYTHON_VERSION: "3.9"
 
@@ -35,7 +36,8 @@ jobs:
     - name: Build executable
       shell: cmd
       run: |
-        pyinstaller --onefile --windowed --name "${{ env.APP_NAME }}" "${{ env.ENTRY_POINT }}"
+        pyinstaller --noconfirm --onefile --windowed --icon "${{ env.ICON }}" --name "${{ env.APP_NAME }}" "${{ env.ENTRY_POINT }}"
+        
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
