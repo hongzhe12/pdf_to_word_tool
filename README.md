@@ -14,7 +14,7 @@
 ## 界面概览
 ![img_1.png](img_1.png)
 
-
+![img.png](img.png)
 主界面包括以下几个主要模块：
 ### 参数设置区域
 - `width_spin`: 设置图片宽度(默认75mm)
