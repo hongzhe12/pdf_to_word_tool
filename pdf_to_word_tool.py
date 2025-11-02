@@ -342,13 +342,32 @@ class MainWindow(QMainWindow):
         event.accept()
 
 
+def get_icon_path():
+    """专门处理打包后的图标路径"""
+    # 打包后的资源路径
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+        icon_path = os.path.join(base_path, 'images', 'word.png')
+        return icon_path
+    else:
+        return os.path.join('images', 'word.png')
+
+
+
 if __name__ == "__main__":
     from ctypes import windll  # Only exists on Windows.
     from PySide6.QtGui import QIcon
     myappid = 'mycompany.myproduct.subproduct.version'
     windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("images/icon.svg"))
+
+    # 获取图标路径并设置
+    icon_path = get_icon_path()
+    app.setWindowIcon(QIcon(icon_path))
+
     window = MainWindow()
+    # 同时在窗口设置图标
+    window.setWindowIcon(QIcon(icon_path))
+
     window.show()
     sys.exit(app.exec())
